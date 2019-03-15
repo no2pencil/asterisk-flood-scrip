@@ -5,6 +5,12 @@
 #
 # For my buddy Nexus....
 
+function ctrl_c() {
+  pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
+  kill -9 ${pid}
+  exit
+}
+
 function load_conf() {
   conffile=auto.calls.conf
   Dnum=$(cat auto.calls.conf | cut -d',' -f1)
@@ -20,6 +26,8 @@ function load_conf() {
   # Other Global Variables...
   wd=$(cat auto.calls.conf | cut -d',' -f6) 
   outbound=$(cat auto.calls.conf | cut -d',' -f7)
+  logd=$(cat auto.calls.conf | cut -d',' -f8)
+  tlog="/tmp/autolog.txt"
 }
 
 function save_conf() {
@@ -29,6 +37,8 @@ function save_conf() {
 }
 
 function exit_clean() {
+  pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
+  kill -9 ${pid}
   exit 0
 }
 
@@ -63,6 +73,7 @@ function configure() {
   echo "[----------------------]"
   echo "  W) Working Dir ( ${wd} )"
   echo "  O) Output Dir ( ${outbound} ) "
+  echo "  V) Log Directory ( ${logd} ) "
   echo "[----------------------]"
   echo "  M) Main Menu"
   echo "[======================]"
@@ -114,6 +125,11 @@ function dial() {
     cd ${outbound}
     tar -xvf ${wd}calls.tar > /dev/null 2>&1 
     cd ${PWD}
+
+    logtxt='0'
+    if [ -f ${tlog} ]; then
+      logtxt=$(cat ${tlog} |wc -l|awk '{print $1}')
+    fi
  
     echo "[======================]"
     echo "[    Ctrl+C to Exit    ]"
@@ -121,8 +137,10 @@ function dial() {
     echo "[ Dialing : ${Dnum} ]"
     echo "[ From    : ${Fnum} ]"
     echo "[======================]"
-    echo "${counter} - calls"
+    echo "${counter} - Calls Placed"
+    echo "${logtxt} - Calls Completed"
     counter=$(expr ${counter} + 1)
+    trap ctrl_c INT
     sleep ${Pause}
   done
 }
@@ -164,6 +182,13 @@ function process() {
             echo "[ Set Working Directory ]"
             echo "[=======================]"
             read -p "$1"": " wd
+            ;;
+          "V"|"v")
+            clear
+            echo "[============================]"
+            echo "[ Set Asterisk Log Directory ]"
+            echo "[============================]"
+            read -p "$1"": " logd 
             ;;
           "O"|"o")
             clear
@@ -225,6 +250,13 @@ function process() {
 ## Initial display
 load_conf
 menu
+
+pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
+if [ ${pid} ]; then
+  kill -9 ${pid} 
+fi
+bash eval.sh ${logd} ${Dnum} ${tlog} &
+
 while [ 1 -ne 2 ];
 do
   counter=0
