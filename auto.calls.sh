@@ -7,7 +7,9 @@
 
 function ctrl_c() {
   pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
-  kill -9 ${pid}
+  if [ ${pid} ]; then
+    kill -9 ${pid}
+  fi
   exit
 }
 
@@ -38,7 +40,9 @@ function save_conf() {
 
 function exit_clean() {
   pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
-  kill -9 ${pid}
+  if [ ${pid} ]; then
+    kill -9 ${pid}
+  fi
   exit 0
 }
 
@@ -127,9 +131,16 @@ function dial() {
     cd ${PWD}
 
     logtxt='0'
+    pidtxt=' '
     if [ -f ${tlog} ]; then
-      logtxt=$(cat ${tlog} |wc -l|awk '{print $1}')
+      pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
+      logtxt=$(cat ${tlog}|uniq|wc -l|awk '{print $1}')
     fi
+    if [ -z ${pid} ]; then
+      pidtxt="Eval Process not running"
+    else 
+      pidtxt=$(echo ${pid})
+    fi 
  
     echo "[======================]"
     echo "[    Ctrl+C to Exit    ]"
@@ -138,7 +149,7 @@ function dial() {
     echo "[ From    : ${Fnum} ]"
     echo "[======================]"
     echo "${counter} - Calls Placed"
-    echo "${logtxt} - Calls Completed"
+    echo "${logtxt} - Calls Completed [ ${pidtxt} ]"
     counter=$(expr ${counter} + 1)
     trap ctrl_c INT
     sleep ${Pause}
