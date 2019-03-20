@@ -35,7 +35,7 @@ function load_conf() {
 function save_conf() {
   conffile=auto.calls.conf
   mv ${conffile} ${conffile}.bak
-  echo "${Dnum},${Fnum},${Burst},${Pause},${Rid},${wd},${outbound}" > ${conffile}
+  echo "${Dnum},${Fnum},${Burst},${Pause},${Rid},${wd},${outbound},${logd}" > ${conffile}
 }
 
 function exit_clean() {
@@ -266,7 +266,14 @@ pid=$(ps aux|grep eval.sh|grep -v grep|awk '{print $2}')
 if [ ${pid} ]; then
   kill -9 ${pid} 
 fi
-bash eval.sh ${logd} ${Dnum} ${tlog} &
+
+if [ ${logd} ]; then
+  if [ ${Dnum} ]; then
+    if [ ${tlog} ]; then
+      bash eval.sh ${logd} ${Dnum} ${tlog} &
+    fi
+  fi
+fi
 
 while [ 1 -ne 2 ];
 do
