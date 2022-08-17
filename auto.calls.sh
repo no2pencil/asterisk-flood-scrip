@@ -94,13 +94,24 @@ function dial() {
     # Cleanup Previous Run #
     # #################### #
     rm ${wd}*.call 2>/dev/null
-    rm ${wd}calls.tar
 
     # ################### #
     # Randomize Caller ID #
     # ################### #
     if [ ${Rid} -eq 0 ]; then 
-      Fnum=$(awk -v min=1 -v max=9 'BEGIN{srand(); print int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1)) int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))}')
+      ### Fetch major area code
+      areacode=$(awk -v min=1 -v max=16 '
+        BEGIN {
+          srand();
+          r_number=int( min + rand() * (max - min + 1) )
+        } 
+        NR == r_number' areacodes.txt)
+
+      Fnum=$(awk -v min=1 -v max=9 '
+        BEGIN{
+          srand(); 
+          print int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))int(min+rand()*(max-min+1))}')
+      Fnum=$(echo ${areacode}${Fnum})
     fi
     clear
     loop=0
@@ -111,24 +122,23 @@ function dial() {
     while [ ${loop} -lt ${Burst} ]; 
     do
       touch ${wd}${loop}.call
-      chown asterisk:asterisk ${wd}${loop}.call
+      chown asterisk:wheel ${wd}${loop}.call
       echo "Channel: SIP/flowroute/1${Dnum}" > ${wd}${loop}.call
       echo "Callerid: ${Fnum}" >> ${wd}${loop}.call
+      echo "Priority: 1" >> ${wd}${loop}.call
       echo "Context: incoming-calls" >> ${wd}${loop}.call
       echo "Extension: 1003" >> ${wd}${loop}.call
+      echo "MaxRetries: 2" >> ${wd}${loop}.call
+      echo "RetryTime: 60" >> ${wd}${loop}.call
       loop=$(expr ${loop} + 1)
     done
 
     # ############################### #
     # Send to Asterisk for Processing #
     # ############################### #
-    # cp -p *.call ${outbound}
-    set PWD=$(pwd)
-    cd ${wd}
-    tar -cvf calls.tar *.call > /dev/null 2>&1 
-    cd ${outbound}
-    tar -xvf ${wd}calls.tar > /dev/null 2>&1 
-    cd ${PWD}
+    #set PWD=$(pwd)
+    cp ${wd}*.call ${outbound} 2>/dev/null
+    #cd ${PWD}
 
     logtxt='0'
     pidtxt=' '
