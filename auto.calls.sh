@@ -27,7 +27,7 @@ function load_conf() {
   fi
   # Other Global Variables...
   wd=$(cat ${conffile}|cut -d',' -f6) 
-  outbound=$(cat ${conffile} cut -d',' -f7)
+  outbound=$(cat ${conffile}|cut -d',' -f7)
   logd=$(cat ${conffile}|cut -d',' -f8)
   tlog="/tmp/autolog.txt"
 }
