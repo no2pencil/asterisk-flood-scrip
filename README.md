@@ -1,8 +1,8 @@
-Purpose - gives a generic text menu to generation of auto dial files, along with some counters.
+Purpose - Using a generic text menu, auto generation of dial files for use with Asterisk, along with a call counter.
 
 Usage - Run auto.calls.sh from the cli, may require sudo depending on your setup.
 
-Once the script is run, you'll be at the main menu.  From here you can configure the values for the dial files, how often to make calls, & some directories for your system.
+Once the script is run, you'll be in the main menu.  From here you can select "Configure".  This allows you to set the values for the dial files, how often to make calls, & some directories for your system.
 
 From the main menu, when you select "Dial", using the values provided in the configuration dial files are generated & copied to the spooler directory.
 
