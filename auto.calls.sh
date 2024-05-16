@@ -15,11 +15,11 @@ function ctrl_c() {
 
 function load_conf() {
   conffile=auto.calls.conf
-  Dnum=$(cat ${conffile} cut -d',' -f1)
-  Fnum=$(cat ${conffile} cut -d',' -f2)
-  Burst=$(cat ${conffile} cut -d',' -f3)
-  Pause=$(cat ${conffile} cut -d',' -f4)
-  Rid=$(cat ${conffile} cut -d',' -f5)
+  Dnum=$(cat ${conffile}|cut -d',' -f1)
+  Fnum=$(cat ${conffile}|cut -d',' -f2)
+  Burst=$(cat ${conffile}|cut -d',' -f3)
+  Pause=$(cat ${conffile}|cut -d',' -f4)
+  Rid=$(cat ${conffile}|cut -d',' -f5)
   if [ ${Rid} -eq 0 ]; then
     RidCh="Y"
   else
